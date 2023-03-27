@@ -6,7 +6,7 @@ Fork this repo and send us a link to the repo with your results.
 **Figma Designs:** https://www.figma.com/file/SWyCwoO9gHgwsAMMNtwzWW/Test-Task?node-id=0%3A1
 
 ## Task
- - Implement "Add Customer"/"Edit Customer" functionality
+ - Implement "Add Customer"/"Edit Customer" functionality (do not implement validation)
  - Implement "Delete Customer" button
 
 ## Requirements
