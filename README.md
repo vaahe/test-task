@@ -7,7 +7,6 @@ Fork this repo and send us a link to the repo with your results.
 
 ## Task
  - Implement "Add Customer"/"Edit Customer" functionality
- - Implement validation of fields
  - Implement "Delete Customer" button
 
 ## Requirements
