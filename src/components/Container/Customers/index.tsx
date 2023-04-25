@@ -1,13 +1,17 @@
 import React from 'react';
-import Table from './Table';
 
-const Customers = ({ datas }: any) => {
+import Table from './Table';
+import { styles } from '../../../styles/Customers';
+import useCustomersContext from '../../../hooks/useCustomersContext';
+
+
+export const Customers = () => {
+  const context = useCustomersContext();
+
   return (
-    <div className="border border-black w-full text-black-100 text-xl m-1 px-4 py-2 overflow-auto">
-      <h1 className="font-bold text-black-200 text-[20px]">Customers</h1>
-      <Table datas={datas} />
+    <div className={styles.container}>
+      <h1 className={styles.header}>Customers</h1>
+      <Table data={context?.customers || []} />
     </div>
   );
 };
-
-export default Customers;

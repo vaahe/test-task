@@ -1,123 +1,61 @@
-import React, { FC, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import React from 'react';
 import * as Yup from 'yup';
+import { Formik } from 'formik';
 
-import { styles } from '../../../styles/Container';
-import { AddCustomerProps } from '../../../types';
-import Image from 'next/image';
+import { styles } from '../../../styles/AddCustomer';
 
-const schema = Yup.object().shape({
-  firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
-  lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
-  email: Yup.string().email('Invalid email').required('Required'),
-});
+import { FormFields } from './components/formFields';
+import { AddCustomerProps, customerType } from '../../../types';
+import useCustomersContext from '../../../hooks/useCustomersContext';
 
-const AddCustomer = ({ initialValues, onSubmit }: AddCustomerProps) => {
-  const [passwordType, setPasswordType] = useState('password');
-  const [imgSrc, setImgSrc] = useState('/images/Eye.svg');
+const initialValues: customerType = {
+  email: '',
+  company: '',
+  lastName: '',
+  password: '',
+  firstName: '',
+  status: '',
+};
 
-  const togglePassword = () => {
-    if (passwordType === 'password') {
-      setImgSrc('/images/EyeOff.svg');
-      setPasswordType('text');
+export const AddCustomer = ({}: AddCustomerProps | any) => {
+  const context = useCustomersContext();
+
+  const onSubmit = (values: customerType, { resetForm }: any) => {
+    if (context?.customerOnEdit) {
+      context?.setCustomers(
+        context?.customers.map((customer) =>
+          customer?.id === context?.customerOnEdit?.id ? values : customer,
+        ),
+      );
+
+      context?.setCustomerOnEdit(undefined);
       return;
     }
 
-    setImgSrc('/images/Eye.svg');
-    setPasswordType('password');
+    context?.setCustomers([...context.customers, { ...values, id: Date.now() }]);
+    resetForm({ values: initialValues });
   };
 
   return (
-    <div className="p-5 w-1/3">
-      <h1 className="font-bold text-header text-[20px]">Add Customer</h1>
+    <div className={styles.container}>
+      <h1 className={styles.header}>Add Customer</h1>
 
-      <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={schema}>
-        {({ isSubmitting }) => (
-          <Form className="text-input font-medium leading-6">
-            <div className="flex text-base flex-start justify-between p-0 w-full">
-              <div className="flex flex-col w-36">
-                <label htmlFor="firstName">
-                  First Name
-                  <Field
-                    type="firstName"
-                    name="firstName"
-                    id="firstName"
-                    className={styles.input}
-                  />
-                  <ErrorMessage name="firstName" component="div" className={styles.errorMessage} />
-                </label>
-              </div>
-
-              <div className="flex flex-col w-36">
-                <label htmlFor="lastName">
-                  Last Name
-                  <Field type="lastName" name="lastName" id="lastName" className={styles.input} />
-                  <ErrorMessage name="lastName" component="div" className={styles.errorMessage} />
-                </label>
-              </div>
-            </div>
-
-            <label htmlFor="company">
-              Company
-              <Field type="company" name="company" id="company" className={styles.input} />
-              <ErrorMessage name="company" component="div" className={styles.errorMessage} />
-            </label>
-
-            <div className="my-4">
-              <label htmlFor="status" id="status">
-                Status
-              </label>
-              <div role="group" aria-labelledby="status">
-                <label>
-                  <Field type="radio" name="status" value="user" />
-                  User
-                </label>
-                <label>
-                  <Field type="radio" name="status" value="admin" />
-                  Administrator
-                </label>
-                <ErrorMessage name="status" component="div" className={styles.errorMessage} />
-              </div>
-            </div>
-
-            <label htmlFor="email">
-              Email
-              <Field type="email" name="email" id="email" className={styles.input} />
-              <ErrorMessage name="email" component="div" className={styles.errorMessage} />
-            </label>
-
-            <label htmlFor="password" className="relative block">
-              Password
-              <Field
-                type={passwordType}
-                name="password"
-                id="password"
-                className={`bg-white placeholder:font-italitc border border-slate-400 drop-shadow ${styles.input}`}
-              />
-              <span className="absolute inset-y-0 right-0 flex items-end my-auto py-1 px-3">
-                <Image
-                  src={imgSrc}
-                  alt="eye"
-                  width={32}
-                  height={32}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
-                  onClick={togglePassword}
-                />
-              </span>
-            </label>
-            <ErrorMessage name="password" component="div" className={styles.errorMessage} />
-
-            <Field
-              type="submit"
-              disabled={isSubmitting}
-              value="Submit"
-              className="w-full py-2 px-3 bg-buttonBg rounded-lg text-white cursor-pointer"
-            />
-          </Form>
-        )}
+      <Formik
+        initialValues={context?.customerOnEdit || initialValues}
+        onSubmit={onSubmit}
+        validationSchema={validationSchema}
+        enableReinitialize={true}
+      >
+        {({ isSubmitting }) => <FormFields isSubmitting={isSubmitting} />}
       </Formik>
     </div>
   );
 };
 
-export default AddCustomer;
+const validationSchema = Yup.object().shape({
+  company: Yup.string().required('Required'),
+  lastName: Yup.string().required('Required'),
+  firstName: Yup.string().required('Required'),
+  email: Yup.string().email('Invalid email').required('Required'),
+  password: Yup.string().max(50, 'Too Long!').required('Required').min(8, '8+ characters'),
+});
